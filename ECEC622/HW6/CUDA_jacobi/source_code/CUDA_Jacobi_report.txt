@@ -1,0 +1,85 @@
+For this assignment we had to create two kernels, one for global memory access of matrices during a jacobi iterative solver
+and shared memory access of the matrices.
+
+Parallel reduction was also needed for the SSD calculation for each thread using a tree like parallel reduciton scheme.
+
+The matrix size was changed in the jaco_iteration.h file to accomodate 512, 1024 and 2048 sizes of matrices. 
+Tile_size was fixed at 32to accomodate for multiples in thread blocks.
+Tile sizes of 64 and 128 gave CUDA kernel errors durong shared memory access.
+
+During Global memory access:
+Matrices were assigned a total size for being implemented on the Kernel.
+naively the kernel makes sure every thread traverses the input matrices in order to reach the element to perform
+the dot product over the entire matrix.
+
+For matrix size 512x512:
+The kernels halt on a smaller matrix size during a certain iteration sometimes.
+The CPU times for the size given was around 3 to 5 seconds.
+My tile size can be higher possibly while accessing from shared memory.
+Generating 512 x 512 system
+
+Performing Jacobi iteration on the CPU
+
+Convergence achieved after 8051 iterations
+Average diff between LHS and RHS: 0.001355
+
+Performing Jacobi iteration on device
+Data transfer time = 0.110355s
+Execution time = 0.5256581s
+
+Using optimized version when matrix A is stored in row major form on device
+Execution time = 0.004367s
+Average diff between LHS and RHS: 0.000205
+Average diff between LHS and RHS: 0.067577
+
+For matrix size 1024x1024:
+Generating 1024 x 1024 system
+
+Performing Jacobi iteration on the CPU
+
+Convergence achieved after 16357 iterations
+Average diff between LHS and RHS: 0.001919
+
+Performing Jacobi iteration on device
+Data transfer time = 0.109298s
+Execution time = 5.797075s
+
+Using optimized version when matrix A is stored in row major form on device
+Execution time = 0.004555s
+Average diff between LHS and RHS: 1.699840
+Average diff between LHS and RHS: 5.983636
+
+For matrix size 2048x2048:
+The CPU data access and calcualtion time is around 25 seconds or more for very large matrix sizes which makes sense for serial code.
+Sometimes this program terminates on un realistic difference between LHS and RHS like 1.5 and the optimized version even worse around 
+5.0.
+Generating 2048 x 2048 system
+
+Performing Jacobi iteration on the CPU
+
+Convergence achieved after 34291 iterations
+Average diff between LHS and RHS: 0.002714
+
+Performing Jacobi iteration on device
+Data transfer time = 0.133953s
+Execution time = 7.518019s
+
+Using optimized version when matrix A is stored in row major form on device
+Execution time = 0.00616s
+Average diff between LHS and RHS: 8.141576
+Average diff between LHS and RHS: 6.027589
+
+Due to global memory access there were some slower run times as seen.
+I tried implementing the conversion of the matrix A to column major form but I was doing something wrong durting row access.
+What I did was take the transpose of the matrix A and then used column major access pattern.
+i.e. A[1*Col_num + j].
+
+But this was causing the program to halt.
+There are a couple of issues with the source code, the program terminates on very large matrix sizes sometimes, I do not think my shared memory
+tiling of the matrices is completely correct.
+Secondly I was having a tough time with CudaMemset(), I instead opted for CudaMemCpy() instead for SSD copy to the device.
+Sometimes for large matrix sizes my code will run but will not converge correctly leaving a change between LHS and RHS as around 4 to 5.
+This might be due to the factor that my reduction code was not workign properly as well. So I removed that in favor of better performance.
+I tried implementing the reduciton code as defined by the vector-reduction_small examples first, then large.
+
+

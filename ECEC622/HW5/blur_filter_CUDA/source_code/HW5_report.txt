@@ -1,0 +1,72 @@
+CUDA blue filter report:
+
+Firstly threads and grid dimensions were allocated using cudaMalloc and cudaMemcpy.
+This was donw through two seperate function calls on the blue_filter.cu file.
+The blur_kernel was implemented using row major element access for the image bounds. 
+Tiling was used to divide the enitre output image range into a grid of dim3 grid((out_d.size + TILE_SIZE - 1)/TILE_SIZE, (out_d.size + TILE_SIZE - 1)/TILE_SIZE) 
+and thread blocks of dim3 threads(TILE_SIZE, TILE_SIZE).
+Here TILE_SIZE was capped at 32 threads.
+
+The code was compiled and run on the NVidia 1080 GTX GPU on the xunil-05 machine.
+
+Ignoring the overhead due to CPU, GPU data transfer, altough the timings were reported, the GPU versions gave considerable 
+speed up for large image sizes specifically 4096x4096 and 8192x8192:
+[ask85@xunil-05 HW5]$ ./blur_filter 4096
+Calculating blur on the CPU
+CPU execution time = 0.453207s
+Calculating blur on the GPU
+in size = 4096
+out size = 4096
+size = 67108864
+Data transfer time = 0.225547s
+in_d size = 4096
+out_d size = 4096
+TILE_SIZE = 32
+Setting up a 128 x 128 grid of thread blocks
+Kernel execution time = 0.000928s
+Checking CPU and GPU results
+TEST PASSED
+
+[ask85@xunil-05 HW5]$ ./blur_filter 8192
+Creating 8192 x 8192 images
+Calculating blur on the CPU
+CPU execution time = 1.686398s
+Calculating blur on the GPU
+in size = 8192
+out size = 8192
+size = 268435456
+Data transfer time = 0.298525s
+in_d size = 8192
+out_d size = 8192
+TILE_SIZE = 32
+Setting up a 256 x 256 grid of thread blocks
+Kernel execution time = 0.003445s
+Checking CPU and GPU results
+TEST PASSED
+
+Even though there is considerable overhead due to global memory access for each of the elemenst calculated on the threads, there is still a good amount of speed up
+due to the owrk divided among the cores of the SMs of the GPU. 
+
+It is important to note that threads also accounted for boundary conditions, specifically :
+    blur_value = 0.0;
+    num_neighbors = 0;
+    for (i = -BLUR_SIZE; i < (BLUR_SIZE + 1); i++) {
+        for (j = -BLUR_SIZE; j < (BLUR_SIZE + 1); j++) {
+			/* Accumulate values of neighbors while checking for 
+			 * boundary conditions */
+			curr_row = row_number + i;
+			curr_col = column_number + j;
+			if ((curr_row > -1) && (curr_row < size) &&\
+					(curr_col > -1) && (curr_col < size)) {
+				blur_value += in[curr_row * size + curr_col];
+				num_neighbors += 1;
+			}
+        }
+    }
+
+     /* Write averaged blurred value out */
+    out[row_number * size + column_number] = (float)(blur_value/num_neighbors);
+
+Also cudaDeviceSynchronize() was called to act as a barrier sync to synchronize the threads before passing control back to the CPU in the main kernel.
+Effectively we are parallelizing the outer for loop that iterates over each pixel in the image. Each pixel was blurred in parallel by a GPU thread as
+long as the thread identifies the row and column location of the pixel of interest.

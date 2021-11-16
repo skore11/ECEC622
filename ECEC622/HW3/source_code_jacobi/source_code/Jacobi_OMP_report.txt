@@ -1,0 +1,104 @@
+This project is an OpenMP solution for the iterative Jacobi solver.
+The way it is implemented now with the OpenMP pragma calls is not very performant but does converge correctly to a good degree.
+
+It is unrealiable in the sense that sometimes the speedup is seen for much larger matrices but not for smaller ones and increasing thread count only improves to a small degree.
+
+One issue that I wasnt able to circumvent is the that the iteartion counts are multiplied by the number of threads used, that is the iterations are commulative and are summed up for all threads present.
+
+4 threads:
+a. With matrix size 512 x 512 :
+Creating input matrices
+Generating 512 x 512 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 9147 iterations
+Execution time = 4.072210s
+Average diff between LHS and RHS 0.000135
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 26481 iterations
+Execution time = -0.000395s
+Average diff between LHS and RHS 0.000269
+
+b. With matrix size 1024 x 1024 :
+Creating input matrices
+Generating 1024 x 1024 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 18823 iterations
+Execution time = 33.123878s
+Average diff between LHS and RHS 0.000192
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 55329 iterations
+Execution time = -0.001337s
+Average diff between LHS and RHS 0.000378
+
+8 threads:
+a. With matrix size 512 x 512 :
+Creating input matrices
+Generating 512 x 512 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 9120 iterations
+Execution time = 3.968391s
+Average diff between LHS and RHS 0.000135
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 27973 iterations
+Execution time = -0.000383s
+Average diff between LHS and RHS 0.000250
+
+b. With matrix size 1024 x 1024 :
+Creating input matrices
+Generating 1024 x 1024 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 18621 iterations
+Execution time = 31.903294s
+Average diff between LHS and RHS 0.000192
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 72996 iterations
+Execution time = -0.001344s
+Average diff between LHS and RHS 0.000395
+
+16 threads:
+a. With matrix size 512 x 512 :
+Generating 512 x 512 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 9232 iterations
+Execution time = 4.102831s
+Average diff between LHS and RHS 0.000135
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 45161 iterations
+Execution time = -0.000379s
+Average diff between LHS and RHS 0.000401
+
+b. With matrix size 1024 x 1024 :
+
+Creating input matrices
+Generating 1024 x 1024 matrix with numbers between [-.5, .5]
+Generating solution using reference code
+
+Convergence achieved after 18602 iterations
+Execution time = 31.866774s
+Average diff between LHS and RHS 0.000192
+
+Performing Jacobi iteration using omp
+
+Convergence achieved after 88625 iterations
+Execution time = -0.001340s
+Average diff between LHS and RHS 0.000735
+
+32 threads:
+The 32 thread system almost never converges and provides erroneous results for very large matrices not sure why...
+
+

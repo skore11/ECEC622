@@ -1,0 +1,374 @@
+This project usees OpenMP to parallelize the Particel Swarm Optimizer function that solves iteratively various functions.
+The swarms are calculated over a range of positons and velocities.
+
+The OpenMP execution is implemented to 4,8 and 16 threads on xunil clusters:
+
+1. Booth function:
+The booth function correctness is pretty decent and values do come similar to the ref. solution however I do not get correctness at higher iteration counts and ranges. This might be due to the way I am implementing the pragma for loops in optimize.
+The speedup is also not very apparent at lower thread counts.
+4 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 1.00 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 0
+Execution time = 0.023349s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 1.00 3.00
+velocity: 0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 1
+Execution time = 0.028609s
+
+8 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 1.00 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 0
+Execution time = 0.022791s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 1.00 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 48
+Execution time = 0.021542s
+
+The position values are not converging correctly here, but only by a small error factor.
+16 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 1.00 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 0
+Execution time = 0.021863s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 0.94 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 27
+Execution time = 0.020136s
+
+16 threads for varied PSO terms:
+./pso booth 2 1000 -50 50 2000 16
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 1.00 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 0
+Execution time = 0.318043s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 0.94 3.00
+velocity: -0.00 -0.00
+pbest: 1.00 3.00
+fitness: 0.0000
+g: 3
+Execution time = 0.302618s
+
+2. Holder Table function:
+The holder table function was more stable ad provides a good degree of correctness with fast execution times.
+4 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 8.06 -9.66
+velocity: 0.00 0.00
+pbest: 8.06 -9.66
+fitness: -19.2085
+g: 0
+Execution time = 0.053139s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -8.03 9.66
+velocity: -0.00 -0.00
+pbest: -8.03 9.66
+fitness: -19.2085
+g: 1
+Execution time = 0.022526s
+
+8 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 8.06 -9.66
+velocity: 0.00 0.00
+pbest: 8.06 -9.66
+fitness: -19.2085
+g: 0
+Execution time = 0.053139s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -8.05 9.66
+velocity: -0.00 -0.00
+pbest: -8.06 9.66
+fitness: -19.2085
+g: 43
+Execution time = 0.026910s
+
+The position values are not converging correctly here, but only by a small error factor.
+16 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 8.06 -9.66
+velocity: 0.00 0.00
+pbest: 8.06 -9.66
+fitness: -19.2085
+g: 0
+Execution time = 0.052477s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -8.06 9.66
+velocity: 0.01 -0.00
+pbest: -8.06 9.66
+fitness: -19.2085
+g: 1
+Execution time = 0.020649s
+
+16 threads for varied PSO terms:
+Odd values are seen for the fitness, not really sure why.
+./pso holder_table 2 1000 -50 50 2000 16
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 48.91 -50.00
+velocity: -0.00 -0.00
+pbest: 48.91 -50.00
+fitness: -1618730240.0000
+g: 0
+Execution time = 0.875841s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -49.31 50.00
+velocity: 0.00 0.00
+pbest: -49.31 50.00
+fitness: -1618730240.0000
+g: 22
+Execution time = 0.344262s
+
+3. EggHolder Function:
+Seems to provide a good convergence and correctness at low thread counts. Bur for 8 threads there is divergence and not as correct
+
+./pso eggholder 2 100 -512 512 1000 4
+4 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 512.00 404.23
+velocity: 0.00 0.00
+pbest: 512.00 404.23
+fitness: -959.6407
+g: 0
+Execution time = 0.040334s
+
+Calculating PSO using OpenMP:
+Solution:
+position:  512.00 397.27
+velocity: 0.00 0.00
+pbest: 512.00 397.25
+fitness: -959.6407
+g: 0
+Execution time = 0.022577s
+
+8 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 512.00 404.23
+velocity: 0.00 0.00
+pbest: 512.00 404.23
+fitness: -959.6407
+g: 0
+Execution time = 0.056341s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -468.72 395.55
+velocity:-0.02 -0.02
+pbest: -468.74 395.56
+fitness:-894.5789
+g: 5
+Execution time = 0.038187s
+
+16 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 512.00 404.23
+velocity: 0.00 0.00
+pbest: 512.00 404.23
+fitness: -959.6407
+g: 0
+Execution time = 0.056341s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 512.00 399.35
+velocity:0.00 -0.00
+pbest: 512.00 399.35
+fitness:-959.6406
+g: 44
+Execution time = 0.029750s
+
+Here is a test for random values in the eggholder function:
+./pso eggholder 2 3500 -400 400 2500 16
+16 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position: 399.57 -367.70
+velocity: -0.00 0.00
+pbest: 399.57 -367.70
+fitness: -716.6715
+g: 0
+Execution time =2.599839s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 399.56 -367.70
+velocity:0.00 -0.00
+pbest: 399.56 -367.70
+fitness:-716.6715
+g: 0
+Execution time =1.092873s
+
+4. Rastrigin function:
+For D = 10 the function produces a series of zeros but my OpenMP implementation proves to be slightly off from the reference solution.
+My fitness comes off for a variety of thread counts and slows down for higher thread counts of 8 but slightly better performant for 16 threads:
+
+4 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+velocity:-0.00 0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00
+pbest:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+fitness: 0.0000
+g: 0
+Execution time =61.608002s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 0.01 0.25 -1.29 -0.99 0.21 2.07 0.06 0.01 -0.05 -0.00
+velocity:-0.00 0.00 0.00 0.00 -0.00 -0.00 0.00 -0.00 0.00 0.00
+pbest: 0.01 0.25 -1.29 -0.99 0.21 2.07 0.06 0.01 -0.05 -0.00
+fitness:2.1701
+g: 790
+Execution time =49.350151s
+
+8 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+velocity:-0.00 0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00
+pbest:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+fitness: 0.0000
+g: 0
+Execution time =63.248680s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 3.12 -5.12 3.27 5.12 1.81 5.12 0.50 0.15 1.75 -3.54
+velocity:-0.00 0.00 0.00 0.00 -0.00 -0.00 0.00 -0.00 0.00 0.00
+pbest: 3.12 -5.12 3.27 5.12 1.81 5.12 0.50 0.15 1.75 -3.54
+fitness: 29.8355
+g: 790
+Execution time =76.893875s
+
+16 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+velocity:-0.00 0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00
+pbest:-0.00 0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00 0.00
+fitness: 0.0000
+g: 0
+Execution time =61.095074s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -1.19 -0.29 -0.08 0.22 0.62 0.83 0.92 -0.33 -1.06 -0.16
+velocity:-0.00 0.00 0.00 0.00 -0.00 -0.00 0.00 -0.00 0.00 0.00
+pbest:-1.19 -0.29 -0.08 0.22 0.62 0.83 0.92 -0.33 -1.06 -0.16
+fitness:6.8591
+g: 66
+Execution time =66.963242s
+
+
+5. Schewefel function:
+For D = 20, the optimized version from  OpenMP are very good for hgiher thread counts, providing a good degree of correctness and converging faster than previous functions:
+ ./pso schwefel 20 10000 -500 500 10000 4
+4 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position:420.97 420.94 420.97 420.97 420.98 420.94 421.00 420.94 420.94 420.94 420.97 -500.00 -500.00 -500.00 -500.00 -500.00 420.94 420.93 420.98 421.00
+velocity:-0.00 0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 0.00 0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 0.00 0.00
+pbest:420.97 420.94 420.97 420.97 420.98 420.94 421.00 420.94 420.94 420.94 420.97 -500.00 -500.00 -500.00 -500.00 -500.00 420.94 420.93 420.98 421.00
+fitness: 1191.9680
+g: 0
+Execution time =218.289902s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 420.89 421.31 419.99 421.23 419.18 -500.00 420.81 421.46 -500.00 420.82 421.24 -500.00 422.12 421.01 -500.00 -500.00 420.75 422.15 420.71 -500.00
+velocity:0.00 -0.00 0.00 -0.00 -0.00 -0.00 -0.00 0.00 -0.00 -0.00 0.00 -0.00 0.00 0.00 -0.00 -0.00 -0.00 0.00 0.00 -0.00
+pbest:  420.89 421.31 419.99 421.23 419.18 -500.00 420.81 421.46 -500.00 420.82 421.24 -500.00 422.12 421.01 -500.00 -500.00 420.75 422.15 420.71 -500.00
+fitness:1430.3777
+g: 842
+Execution time =154.363495s
+
+8 threads:
+Calculating PSO using ref. solution, version 1
+Solution:
+position:420.99 420.95 420.94 420.98 420.99 420.97 420.96 -500.00 420.98 420.99 420.95 -500.00 420.94 420.93 420.97 -500.00 420.93 421.00 -500.00 -500.00
+velocity:-0.00 0.00 -0.00 -0.00 0.00 0.00 0.00 -0.00 0.00 0.00 0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 -0.00 -0.00 -0.00
+pbest:420.99 420.95 420.94 420.98 420.99 420.97 420.96 -500.00 420.98 420.99 420.95 -500.00 420.94 420.93 420.97 -500.00 420.93 421.00 -500.00 -500.00
+fitness: 1191.9680
+g: 0
+Execution time =217.855804s
+
+Calculating PSO using OpenMP:
+Solution:
+position: 420.99 421.01 -500.00 -500.00 420.99 -500.00 420.98 420.98 420.99 420.95 420.98 420.96 420.93 -500.00 -500.00 -302.56 420.97 420.93 420.99 420.95
+velocity:-0.00 -0.00 -0.00 -0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 -0.00 -0.00
+pbest: 420.96 -500.00 420.97 420.97 420.98 -500.00 420.98 -302.51 420.97 420.95 420.95 420.94 -500.00 420.96 -500.00 420.93 -500.00 420.93 420.97 -500.00
+fitness: 1310.4070
+g: 0
+Execution time =139.894424s
+
+16 threads:
+Calculating PSO using ref. solution, version 1
+Calculating PSO using ref. solution, version 1
+Solution:
+position:420.99 420.95 420.94 420.98 420.99 420.97 420.96 -500.00 420.98 420.99 420.95 -500.00 420.94 420.93 420.97 -500.00 420.93 421.00 -500.00 -500.00
+velocity:-0.00 0.00 -0.00 -0.00 0.00 0.00 0.00 -0.00 0.00 0.00 0.00 -0.00 -0.00 -0.00 -0.00 -0.00 0.00 -0.00 -0.00 -0.00
+pbest:420.99 420.95 420.94 420.98 420.99 420.97 420.96 -500.00 420.98 420.99 420.95 -500.00 420.94 420.93 420.97 -500.00 420.93 421.00 -500.00 -500.00
+fitness: 1548.8000
+g: 0
+Execution time =225.598434s
+
+Calculating PSO using OpenMP:
+Solution:
+position: -500.00 420.96 -500.00 -500.00 420.98 420.96 420.97 420.95 420.96 420.99 421.00 420.96 -500.00 420.98 -500.00 -500.00 421.01 420.97 -500.00 -500.00
+velocity:-0.00 0.00 -0.00 -0.00 -0.00 -0.00 0.00 0.00 0.00 -0.00 -0.00 0.00 -0.00 0.00 -0.00 -0.00 0.00 0.00 -0.00 -0.00
+pbest:-500.00 420.96 -500.00 -500.00 420.98 420.96 420.97 420.95 420.96 420.99 421.00 420.96 -500.00 420.98 -500.00 -500.00 421.01 420.97 -500.00 -500.00
+fitness:1907.1492
+g: 0
+Execution time =108.439888s
+
+
+

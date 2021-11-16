@@ -1,0 +1,109 @@
+This assignment required us to implement a counting sort on the GPU using CUDA.
+The first portion required moving data from the CPU to the GPU.
+
+The kernel is divided into three portions:
+First the unsorted elemts are binned into a histogram using the following pseudocode:
+    /* Step 1: Compute histogram and generate bin for each element within the range */ 
+    int i;
+    int num_bins = range + 1;
+    int *bin = (int *)malloc(num_bins * sizeof(int));    
+    if (bin == NULL) {
+        perror("malloc");
+        return -1;
+    }
+
+    memset(bin, 0, num_bins); 
+    for (i = 0; i < num_elements; i++)
+        bin[input_array[i]]++;
+
+Accumulate histogram in shared memory into global memory.
+    if (threadIdx.x < histogram_size) 
+        atomicAdd(&histogram[threadIdx.x], s[threadIdx.x]);
+During the kernel operation its important to sync threads at this point using __syncthreads().
+
+The second portion uses Dynamically allocated shared memory for storing the scan array.
+    extern  __shared__  int temp[];
+	
+	    /* Indices for the ping-pong buffers */
+    int pout = 0;
+    int pin = 1;
+	
+	    /* Load the input array from global memory into shared memory */
+    if (threadIdx.x> 0) 
+        temp[pout * histogram_size + threadIdx.x] = histogram[threadIdx.x];
+    else
+        temp[pout * histogram_size + threadIdx.x] = 0;
+		
+	int offset1;
+    for (offset1 = 1; offset1 < histogram_size; offset1 *= 2) {
+        pout = 1 - pout;
+        pin  = 1 - pout;
+        __syncthreads();
+
+        temp[pout * histogram_size + threadIdx.x] = temp[pin * histogram_size + threadIdx.x];
+
+        if (threadIdx.x > offset1)
+            temp[pout * histogram_size + threadIdx.x] += temp[pin * histogram_size + threadIdx.x - offset1];
+    }
+	
+Once again we sync threads using __syncthreads().
+
+The last portion restructures the sorted array from the bins using the inclusive scan Indexes to place the sorted elements in
+the final sorted array. The code implemented here might be very performant but works well for large arrays as well.
+	int i,j;
+	int start_idx = 0;
+    for (i = 0; i < histogram_size - 1; i++) {
+        for (j = start_idx; j <= histogram[i]; j++) {
+            sorted_array[j] = i;
+        }
+        start_idx = histogram[i];
+    }
+
+
+For very small values of num_elements:
+The tests pass but not seeing very high performance due to the lack of amortization of 
+the length of the arrays.
+The values are being flushed with zeros in an array the size of num_elements.
+./counting_sort 1024
+Generating input array with 1024 elements in the range 0 to 255
+
+Sorting array on CPU
+Eexecution time = 0.000015
+Counting sort was successful on the CPU
+
+Sorting array on GPU
+Data transfer time = 0.174937
+Using shared memory to generate sorted array
+Eexecution time = 0.000400
+
+For very large values of num_elements:
+./counting_sort 1000000
+Generating input array with 1000000 elements in the range 0 to 255
+
+Sorting array on CPU
+Eexecution time = 0.003310
+Counting sort was successful on the CPU
+
+Sorting array on GPU
+Data transfer time = 0.179751
+Using shared memory to generate sorted array
+Eexecution time = 0.000032
+
+As it can be seen that the performance is very good with a very large speed up However there is one issue.
+The zer0 values in the range are being pushed to the end of the sorted array. Dont know why.
+The speed up is due to the fast shared memory access through strides on the inclusive scan operation.
+There is also low branch divergence in the ping pong buffer transfer portion of the kernel.
+This can be seen for every larger arrays as compared to 10^6.
+
+./counting_sort 100000000
+Generating input array with 100000000 elements in the range 0 to 255
+
+Sorting array on CPU
+Eexecution time = 0.198722
+Counting sort was successful on the CPU
+
+Sorting array on GPU
+Data transfer time = 0.385484
+Using shared memory to generate sorted array
+Eexecution time = 0.000031
+
